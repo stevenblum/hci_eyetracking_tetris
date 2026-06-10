@@ -1,0 +1,36 @@
+{
+  "name": "hci-eyetracking-tetris",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:installed": "node scripts/run-e2e-installed-browsers.mjs",
+    "test:e2e:browser-matrix": "E2E_BROWSERS=chromium,firefox,webkit playwright test"
+  },
+  "dependencies": {
+    "@jspsych/extension-webgazer": "^1.2.0",
+    "@jspsych/plugin-html-button-response": "^2.1.0",
+    "@jspsych/plugin-webgazer-calibrate": "^2.1.0",
+    "@jspsych/plugin-webgazer-init-camera": "^2.1.0",
+    "@jspsych/plugin-webgazer-validate": "^2.1.0",
+    "jspsych": "^8.2.3",
+    "webgazer": "^3.5.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@vitejs/plugin-basic-ssl": "^2.0.0",
+    "eslint": "^9.28.0",
+    "eslint-plugin-jsdoc": "^50.7.1",
+    "fake-indexeddb": "^6.0.0",
+    "jsdom": "^25.0.1",
+    "vite": "^6.3.5",
+    "vitest": "^4.1.8"
+  }
+}

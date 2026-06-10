@@ -1,0 +1,927 @@
+:root {
+  color-scheme: dark;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: #0a0d10;
+  color: #edf2f4;
+  font-size: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background:
+    linear-gradient(180deg, rgba(23, 32, 40, 0.88), rgba(10, 13, 16, 1) 380px),
+    #0a0d10;
+  overflow: hidden;
+}
+
+body.play-active {
+  overflow: hidden;
+}
+
+body.webgazer-setup-active {
+  overflow: hidden;
+}
+
+/* WebGazer injects its camera preview directly under document.body, outside
+   the jsPsych display element. During setup we create a separate backdrop so
+   the preview can sit above the page but below app-owned prompts and target
+   dots. That keeps "Continue/Next" messages clickable even when they overlap
+   the preview. */
+body.webgazer-setup-active::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  background: #f6f8f9;
+  pointer-events: none;
+}
+
+button,
+.button-link,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+.button-link {
+  min-height: 38px;
+  border: 1px solid #3b4a55;
+  border-radius: 6px;
+  padding: 0 14px;
+  background: #e8f0f2;
+  color: #111820;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button:hover,
+.button-link:hover {
+  background: #ffffff;
+}
+
+button.danger {
+  border-color: #a95050;
+  background: #ffdede;
+  color: #3b1212;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #3b4a55;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #121920;
+  color: #edf2f4;
+}
+
+textarea {
+  resize: vertical;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  color: #cdd8dc;
+}
+
+label.inline-check {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+label.inline-check input {
+  width: auto;
+}
+
+.app-shell {
+  height: 100dvh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 188px minmax(0, 1fr);
+}
+
+/* The sidebar is deliberately fixed-width: Tetris needs vertical room more
+   than horizontal navigation chrome, and a stable left rail keeps route changes
+   from shifting the game stage. */
+.app-sidebar {
+  height: 100dvh;
+  min-height: 0;
+  padding: 22px 18px;
+  border-right: 1px solid #22313b;
+  background: rgba(8, 12, 15, 0.84);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-content: start;
+  gap: 28px;
+}
+
+.sidebar-brand {
+  display: grid;
+  gap: 4px;
+}
+
+.app-main {
+  min-width: 0;
+  min-height: 0;
+  height: 100dvh;
+  overflow: auto;
+}
+
+body.play-active .app-main {
+  overflow: hidden;
+}
+
+body.replay-active .app-main {
+  overflow: hidden;
+}
+
+.eyebrow {
+  color: #85d8d2;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+h1 {
+  font-size: 1.45rem;
+}
+
+h2 {
+  font-size: 1.05rem;
+  color: #ffffff;
+}
+
+h3 {
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.side-nav {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.side-nav a {
+  color: #cdd8dc;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.side-nav a.active {
+  color: #101519;
+  background: #85d8d2;
+}
+
+.workspace {
+  width: min(1180px, calc(100% - 36px));
+  margin: 26px auto;
+}
+
+.two-column,
+.analysis-grid,
+.replay-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.setup-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+
+.setup-session-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.setup-session-controls {
+  display: grid;
+  gap: 14px;
+}
+
+.analysis-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.panel {
+  border: 1px solid #263744;
+  border-radius: 8px;
+  background: rgba(16, 23, 29, 0.94);
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+}
+
+.panel.wide {
+  grid-column: 1 / -1;
+}
+
+.camera-selection-panel {
+  align-content: start;
+}
+
+/* Camera selection is split into controls and preview because lab operators
+   need to confirm the selected device while keeping the preview visible. The
+   two-column layout also prevents the 4:3 preview from pushing the dropdown and
+   validation buttons far down the Setup workflow. */
+.camera-selection-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(260px, 360px);
+  gap: 18px;
+  align-items: start;
+}
+
+.camera-selection-controls {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.camera-selection-preview {
+  display: grid;
+  justify-items: end;
+  min-width: 0;
+}
+
+/* The green outline is an operator cue, not a validation result. It appears on
+   the next required setup action: first camera validation, then WebGazer setup.
+   The 7px bright-green halo is intentionally prominent for lab operators scanning the
+   Setup page between participants. */
+.camera-selection-attention,
+.setup-action-attention {
+  border-color: #00ff66;
+  box-shadow: 0 0 0 7px rgba(0, 255, 102, 0.42);
+}
+
+.camera-preview-frame {
+  width: min(100%, 360px);
+  aspect-ratio: 4 / 3;
+  border: 1px solid #314553;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #070b0e;
+  display: grid;
+  place-items: center;
+}
+
+.camera-preview-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #070b0e;
+}
+
+.camera-preview-placeholder {
+  color: #9fb0b7;
+  font-size: 0.9rem;
+}
+
+/* WebGazer calibration is a viewport-coordinate task, so it temporarily leaves
+   the regular scrollable setup layout. The fixed overlay gives Brown-style
+   calibration and precision targets a stable frame that matches the browser
+   coordinates later used for gaze samples and canvas AOIs. */
+.webgazer-calibration-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1004;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background: transparent;
+  color: #111820;
+}
+
+.webgazer-calibration-status {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1002;
+  width: min(560px, calc(100vw - 24px));
+  border: 1px solid rgba(17, 24, 32, 0.18);
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #111820;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+  display: grid;
+  gap: 2px;
+  pointer-events: none;
+}
+
+body.webgazer-phase-targets .webgazer-calibration-status {
+  display: none;
+}
+
+body.webgazer-phase-camera .webgazer-calibration-status {
+  top: auto;
+  bottom: 12px;
+}
+
+.webgazer-calibration-status strong {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: #2d5c5a;
+}
+
+.escape-hint {
+  color: #45565f;
+  font-size: 0.82rem;
+}
+
+#webgazer-setup-root {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background: transparent;
+  color: #111820;
+}
+
+#webgazer-setup-root h2,
+#webgazer-setup-root p {
+  color: #111820;
+}
+
+#webgazer-setup-root .jspsych-btn {
+  min-height: 42px;
+  border: 1px solid #304653;
+  border-radius: 6px;
+  padding: 0 16px;
+  background: #111820;
+  color: #ffffff;
+}
+
+/* jsPsych's setup and accuracy-transition screens render as free-standing
+   stimulus/button nodes. Keeping these panels high in the setup stack lets
+   them intentionally cover the WebGazer preview instead of disappearing
+   behind it when the preview occupies the same area. */
+#webgazer-setup-root #jspsych-html-button-response-stimulus,
+#webgazer-setup-root #jspsych-html-button-response-btngroup,
+#webgazer-setup-root #webgazer-init-container > div,
+#webgazer-setup-root > p {
+  position: relative;
+  z-index: 1012;
+}
+
+#webgazer-setup-root #jspsych-html-button-response-stimulus,
+#webgazer-setup-root #webgazer-init-container > div,
+#webgazer-setup-root > p {
+  width: min(420px, calc(100vw - 32px));
+  margin: 16px 0 0 16px;
+  border: 1px solid rgba(17, 24, 32, 0.18);
+  border-radius: 6px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #111820;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+#webgazer-setup-root #jspsych-html-button-response-btngroup {
+  width: min(420px, calc(100vw - 32px));
+  margin: 10px 0 0 16px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* During WebGazer setup the official preview must stay visible and DOM-active.
+   Brown's demo keeps the 320x240 preview at the top-left while calibration and
+   precision run; hiding it with display:none can mask tracker/face-box problems
+   and made failed setup runs harder to diagnose. */
+body.webgazer-setup-active #webgazerVideoContainer {
+  display: block !important;
+  opacity: 1 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 320px !important;
+  height: 240px !important;
+  z-index: 1003 !important;
+  pointer-events: none;
+}
+
+body.webgazer-setup-active #calibration-point {
+  z-index: 1005;
+}
+
+#brown-calibration-container,
+#brown-precision-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* WebGazer's Brown precision code writes prediction points into a hard-coded
+   plotting_canvas element while params.storingPoints is true. Keeping the
+   canvas full-window and below the buttons matches Brown without intercepting
+   participant clicks. */
+#plotting_canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  width: 100vw;
+  height: 100dvh;
+  pointer-events: none;
+}
+
+/* The Brown demo shows a live red prediction marker and keeps the scored
+   prediction points visible in blue during accuracy measurement. These
+   app-owned markers mirror that feedback even when WebGazer's internal
+   plotting canvas does not receive stored points through jsPsych. */
+.brown-precision-sample-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1004;
+  pointer-events: none;
+}
+
+.brown-precision-live-dot,
+.brown-precision-sample-dot {
+  position: fixed;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.brown-precision-live-dot {
+  z-index: 1007;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  background: #f00000;
+  box-shadow: 0 0 0 2px rgba(17, 24, 32, 0.18);
+}
+
+.brown-precision-sample-dot {
+  z-index: 1004;
+  width: 8px;
+  height: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: #006dff;
+  opacity: 0.82;
+}
+
+.brown-calibration-point,
+.brown-precision-target {
+  position: absolute;
+  z-index: 1005;
+  border: 1px solid #111820;
+  border-radius: 999px;
+  background: #cf2626;
+  transform: translate(-50%, -50%);
+}
+
+.brown-calibration-point {
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Calibration dots wait for WebGazer's eye-feature pipeline before accepting
+   clicks because WebGazer silently drops target samples when the tracker is
+   paused or still warming after camera setup. */
+.brown-calibration-point:disabled {
+  cursor: wait;
+  filter: grayscale(0.55);
+}
+
+.brown-calibration-count {
+  position: absolute;
+  z-index: 1006;
+  min-width: 18px;
+  padding: 2px 5px;
+  transform: translate(
+    calc(var(--calibration-point-size, 14px) / 2 - 2px),
+    calc(var(--calibration-point-size, 14px) / -2 - 8px)
+  );
+  border: 1px solid rgba(17, 24, 32, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #111820;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  pointer-events: none;
+}
+
+.brown-calibration-point.complete {
+  background: #f2d34b;
+  cursor: default;
+}
+
+.brown-precision-target {
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  background: #252a2f;
+}
+
+.brown-calibration-instructions,
+.brown-precision-instructions {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(82px, 11vh, 120px);
+  z-index: 1006;
+  width: min(560px, calc(100vw - 24px));
+  transform: translateX(-50%);
+  border: 1px solid rgba(17, 24, 32, 0.18);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #111820;
+  display: grid;
+  gap: 2px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.facts {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.facts div {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.facts.compact div {
+  grid-template-columns: 1fr auto;
+}
+
+dt {
+  color: #9fb0b7;
+}
+
+dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.check-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #d8e2e5;
+}
+
+.button-row,
+.button-stack {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.button-stack {
+  flex-direction: column;
+}
+
+.button-stack button,
+.button-stack .button-link {
+  width: 100%;
+}
+
+.trial-config {
+  display: grid;
+  gap: 10px;
+}
+
+.post-trial-form {
+  display: grid;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid #263744;
+}
+
+.post-trial-form h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0;
+}
+
+.trial-config label,
+.post-trial-form label {
+  gap: 5px;
+  font-size: 0.9rem;
+}
+
+.trial-config input,
+.trial-config select,
+.post-trial-form input {
+  min-height: 34px;
+  padding: 6px 8px;
+}
+
+.status-line,
+.empty {
+  margin: 0;
+  color: #c9d5d9;
+}
+
+.play-workspace {
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 18px;
+  padding: 18px;
+  overflow: hidden;
+}
+
+.trial-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
+  background: #070b0e;
+  border: 1px solid #263744;
+  border-radius: 8px;
+  padding: 0;
+}
+
+/* The game canvas keeps a 500x620 drawing buffer for stable game logic, but is
+   displayed larger in lab view. AOI capture reads the rendered canvas rect and
+   scales game-local coordinates to match this CSS size. */
+#tetris-canvas {
+  display: block;
+  width: min(100%, calc((100dvh - 36px) * 500 / 620));
+  height: auto;
+  max-height: calc(100dvh - 36px);
+  aspect-ratio: 500 / 620;
+  outline: 2px solid transparent;
+  background: #0b1117;
+}
+
+#tetris-canvas:focus {
+  outline-color: #85d8d2;
+}
+
+#debug-overlay {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100%, calc((100dvh - 36px) * 500 / 620));
+  height: auto;
+  max-height: calc(100dvh - 36px);
+  aspect-ratio: 500 / 620;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+#debug-overlay[hidden] {
+  display: none;
+}
+
+.trial-controls {
+  border: 1px solid #263744;
+  border-radius: 8px;
+  background: #10171d;
+  padding: 18px;
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  overflow: auto;
+}
+
+/* Replay uses the full remaining app viewport so the recording and overlay are
+   large enough for frame-by-frame gaze inspection. The right panel stays fixed
+   beside the media surface because scrub, piece jump, and trail settings need
+   to remain reachable during playback. */
+.replay-layout {
+  width: calc(100% - 36px);
+  height: calc(100dvh - 36px);
+  margin: 18px;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.replay-surface {
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  background: #05080a;
+  border: 1px solid #263744;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#replay-video,
+#replay-overlay {
+  /* The video and canvas must share the same CSS box: replay maps stored
+     viewport gaze/AOI coordinates into overlay pixels using this rendered size. */
+  width: min(100%, calc((100dvh - 36px) * 500 / 620));
+  max-width: 100%;
+  height: auto;
+  max-height: calc(100dvh - 36px);
+  aspect-ratio: 500 / 620;
+}
+
+#replay-video {
+  background: #0b1117;
+}
+
+#replay-overlay {
+  position: absolute;
+  pointer-events: none;
+}
+
+.replay-controls {
+  align-content: start;
+  min-height: 0;
+  overflow: auto;
+}
+
+.replay-details {
+  border-top: 1px solid #263744;
+  border-bottom: 1px solid #263744;
+  padding: 10px 0;
+}
+
+.replay-legend {
+  display: grid;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.replay-legend h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0;
+}
+
+.legend-items {
+  display: grid;
+  gap: 8px;
+}
+
+.legend-item {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-items: center;
+  gap: 8px;
+  color: #dbe5e8;
+  font-size: 0.9rem;
+}
+
+.legend-swatch {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--legend-color);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--legend-color) 26%, transparent);
+}
+
+.legend-swatch.gaze-swatch {
+  border-radius: 999px;
+  background: var(--legend-color);
+  box-shadow: 0 0 0 2px rgba(18, 24, 30, 0.92);
+}
+
+.table-wrap {
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  padding: 9px 10px;
+  text-align: left;
+  border-bottom: 1px solid #263744;
+}
+
+th {
+  color: #96dcd6;
+  font-weight: 700;
+}
+
+td {
+  color: #e5ecef;
+}
+
+@media (max-width: 860px) {
+  .app-shell,
+  .two-column,
+  .setup-session-grid,
+  .camera-selection-grid,
+  .analysis-grid,
+  .replay-layout,
+  .play-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .camera-selection-preview {
+    justify-items: stretch;
+  }
+
+  .app-shell {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .app-sidebar {
+    height: auto;
+    min-height: 0;
+    border-right: 0;
+    border-bottom: 1px solid #22313b;
+    padding: 14px 18px;
+    display: grid;
+    grid-template-rows: auto auto;
+    align-items: start;
+    gap: 12px;
+  }
+
+  .side-nav {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .app-main {
+    height: auto;
+    overflow: auto;
+  }
+
+  .play-workspace {
+    height: auto;
+    overflow: auto;
+  }
+
+  body.play-active {
+    overflow: hidden;
+  }
+
+  body.play-active .app-main {
+    overflow: auto;
+  }
+
+  body.replay-active .app-main {
+    overflow: auto;
+  }
+
+  .replay-layout {
+    height: auto;
+    margin: 18px auto;
+    overflow: visible;
+  }
+
+  .replay-surface {
+    min-height: 460px;
+    height: min(70vh, 620px);
+  }
+
+  #replay-video,
+  #replay-overlay {
+    max-height: min(70vh, 620px);
+  }
+}
