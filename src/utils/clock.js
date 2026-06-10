@@ -21,7 +21,7 @@ export function nowIso() {
  *
  * @returns {number} Monotonic time in milliseconds.
  */
-export function nowMs() {
+function nowMs() {
   return performance.now();
 }
 

@@ -1,0 +1,94 @@
+# This workflow publishes the Vite production build to GitHub Pages whenever
+# `main` changes. GitHub Pages serves only static files, so the deployable
+# `index.html` must come from `dist/` after Vite rewrites module imports and
+# copies `public/` assets.
+name: Deploy GitHub Pages
+
+on:
+  # Push builds keep the hosted experiment synchronized with the default branch.
+  push:
+    branches:
+      - main
+
+  # Manual dispatch lets a researcher republish the same source revision after
+  # changing repository Pages settings or recovering from a transient CI issue.
+  workflow_dispatch:
+
+# The Pages actions need read access to source files, permission to upload the
+# static artifact, and permission to create/update the Pages deployment record.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# GitHub recommends serializing Pages deployments so older runs cannot publish
+# after a newer commit has already completed.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # The build job validates the app and produces the static artifact that Pages
+  # will serve from its generated `index.html`.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout provides the Vite source, vendored MediaPipe files, and tests
+      # needed to verify the browser experiment before publishing.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Node 20 is a stable runtime for the current Vite/tooling stack and keeps
+      # dependency installation reproducible through `package-lock.json`.
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # `npm ci` enforces the checked-in lockfile so the hosted build matches
+      # local validation and future lab machines can reproduce the dependency set.
+      - name: Install Dependencies
+        run: npm ci
+
+      # Unit tests run before building so schema, replay, AOI, and WebGazer
+      # integration regressions block deployment instead of reaching participants.
+      - name: Run Unit Tests
+        run: npm test
+
+      # Knip catches unused dependencies, files, and exports before deployment;
+      # the config documents dynamic WebGazer assets that must remain vendored.
+      - name: Run Dead Code Scan
+        run: npm run deadcode
+
+      # The production build emits `dist/index.html` with relative asset URLs
+      # configured by `vite.config.js`, making it safe under a project Pages path.
+      - name: Build Static Site
+        run: npm run build
+
+      # `configure-pages` prepares GitHub's Pages metadata for an artifact-based
+      # deployment rather than serving the source branch directly.
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      # Uploading only `dist` prevents source-only `index.html` from being served
+      # without Vite's bundled JavaScript and copied public assets.
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  # The deploy job publishes the exact artifact produced by the validated build
+  # job, which keeps the public Pages site tied to a passing CI run.
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # GitHub's deploy action creates or updates the Pages site from the uploaded
+      # static artifact and exposes the final hosted URL as a workflow output.
+      - name: Deploy To GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

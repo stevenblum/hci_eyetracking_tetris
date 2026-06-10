@@ -120,7 +120,7 @@ export function createApp(root) {
  * @param {HTMLElement} root Root element.
  * @param {Record<string, unknown>} state App state.
  */
-export function render(root, state) {
+function render(root, state) {
   document.body.classList.toggle('play-active', state.view === 'play');
   document.body.classList.toggle('replay-active', state.view === 'replay');
   document.body.classList.toggle('webgazer-setup-active', state.setupRunning);

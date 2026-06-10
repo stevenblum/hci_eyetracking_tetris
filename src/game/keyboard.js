@@ -5,7 +5,7 @@
  * Keeping pause/quit in the same map lets event logging distinguish accepted
  * gameplay controls from trial-control keys without adding pointer controls.
  */
-export const FORMAL_KEYBOARD_MAP = {
+const FORMAL_KEYBOARD_MAP = {
   ArrowLeft: 'move_left',
   ArrowRight: 'move_right',
   ArrowDown: 'soft_drop',

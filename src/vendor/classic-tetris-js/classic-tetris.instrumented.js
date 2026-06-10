@@ -31,7 +31,7 @@ export const GAME_EVENTS = {
  * Matrices stay local and deterministic so the experiment can derive active
  * cells, ghost cells, and board metrics from the same shape source.
  */
-export const PIECES = {
+const PIECES = {
   I: {
     color: '#27b7ff',
     matrix: [
@@ -1033,7 +1033,7 @@ export function computeBoardMetrics(board, hiddenRows = 2) {
  * @param {number[][]} matrix Piece matrix.
  * @returns {{col: number, row: number}[]} Occupied cell coordinates.
  */
-export function matrixCells(matrix) {
+function matrixCells(matrix) {
   const cells = [];
   matrix.forEach((row, rowIndex) => {
     row.forEach((value, colIndex) => {
@@ -1056,7 +1056,7 @@ export function matrixCells(matrix) {
  * @param {number} direction Positive for clockwise, negative for counterclockwise.
  * @returns {number[][]} Rotated matrix.
  */
-export function rotateMatrix(matrix, direction) {
+function rotateMatrix(matrix, direction) {
   const size = matrix.length;
   const rotated = Array.from({ length: size }, () => Array(size).fill(0));
   for (let row = 0; row < size; row += 1) {

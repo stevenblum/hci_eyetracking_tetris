@@ -151,7 +151,7 @@ export function buildAoiVisits(classifiedSamples) {
  * @param {{x: number, y: number, w: number, h: number}} rect Rectangle.
  * @returns {boolean} True when the point is inside.
  */
-export function pointInRect(x, y, rect) {
+function pointInRect(x, y, rect) {
   return x >= rect.x && x <= rect.x + rect.w && y >= rect.y && y <= rect.y + rect.h;
 }
 

@@ -8,7 +8,7 @@
  * @param {unknown} value Cell value from a canonical table row.
  * @returns {string} CSV-safe text.
  */
-export function escapeCsvCell(value) {
+function escapeCsvCell(value) {
   if (value === null || value === undefined) {
     return '';
   }

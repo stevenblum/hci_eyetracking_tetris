@@ -1,0 +1,39 @@
+{
+  // The schema gives editors and CI-validating agents the current Knip config
+  // shape while allowing comments that explain project-specific exceptions.
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+
+  // Entry files represent executable surfaces Knip does not already infer from
+  // its Vite, Vitest, Playwright, and ESLint plugins.
+  "entry": [
+    "index.html",
+    "scripts/**/*.mjs",
+    "tests/**/*.js",
+    ".github/workflows/*.yml"
+  ],
+
+  // Project files define the source Knip should analyze for unused exports,
+  // dependencies, and unresolved imports without treating generated build
+  // output as application source.
+  "project": [
+    "src/**/*.js",
+    "tests/**/*.js",
+    "scripts/**/*.mjs",
+    "*.js",
+    "public/mediapipe/face_mesh/**/*.{js,ts}"
+  ],
+
+  // WebGazer fetches these vendored MediaPipe files dynamically from its
+  // `faceMeshSolutionPath`, so static import tracing cannot discover them even
+  // though deleting them would break real eye-tracking setup on GitHub Pages.
+  "ignoreFiles": [
+    "public/mediapipe/face_mesh/**"
+  ],
+
+  // Playwright imports the Vite dev-server path inside the browser context.
+  // Node-side static resolution cannot resolve that `/src/...` URL, but the e2e
+  // test verifies it through Vite before deployment.
+  "ignoreUnresolved": [
+    "/src/experiment/WebGazerBridge.js"
+  ]
+}

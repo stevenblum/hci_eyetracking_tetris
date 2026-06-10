@@ -552,7 +552,7 @@ function toLabelList(value) {
  *
  * @returns {Promise<IDBDatabase>} Open database handle.
  */
-export function openDb() {
+function openDb() {
   return new Promise((resolve, reject) => {
     if (!globalThis.indexedDB) {
       reject(new Error('IndexedDB is unavailable in this browser.'));
@@ -579,7 +579,7 @@ export function openDb() {
  * @param {unknown} value Value to store.
  * @returns {Promise<void>} Resolves after transaction completes.
  */
-export function idbPut(db, key, value) {
+function idbPut(db, key, value) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     tx.objectStore(STORE_NAME).put(value, key);
@@ -599,7 +599,7 @@ export function idbPut(db, key, value) {
  * @param {string} key Backup key.
  * @returns {Promise<unknown>} Stored value or undefined.
  */
-export function idbGet(db, key) {
+function idbGet(db, key) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readonly');
     const request = tx.objectStore(STORE_NAME).get(key);
@@ -619,7 +619,7 @@ export function idbGet(db, key) {
  * @param {string} key Backup key.
  * @returns {Promise<void>} Resolves after transaction completes.
  */
-export function idbDelete(db, key) {
+function idbDelete(db, key) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     tx.objectStore(STORE_NAME).delete(key);

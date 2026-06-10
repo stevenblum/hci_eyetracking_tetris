@@ -27,7 +27,11 @@ const CALIBRATION_TRACKER_READY_TIMEOUT_MS = 5000;
 const CALIBRATION_TRACKER_READY_POLL_MS = 100;
 const WEBGAZER_FACE_TRACKER_WATCHDOG_MS = 750;
 const WEBGAZER_FACE_TRACKER_STATUS_MS = 5000;
-const WEBGAZER_MEDIAPIPE_FACE_MESH_PATH = '/mediapipe/face_mesh';
+// The FaceMesh assets live in Vite's `public` directory and are copied beside
+// the compiled `index.html`. A relative URL keeps WebGazer compatible with
+// GitHub Pages project sites, which serve repositories under `/<repo-name>/`
+// instead of the domain root.
+const WEBGAZER_MEDIAPIPE_FACE_MESH_PATH = './mediapipe/face_mesh';
 // These positions intentionally mirror Brown's demo layout instead of using a
 // uniform CSS grid. The top-left target is shifted right so WebGazer's official
 // camera preview and face box can remain visible without covering a target.
@@ -2764,7 +2768,8 @@ function brownPrecisionSampleSourceDisplayLabel(source) {
  * WebGazer 3.5.3 expects MediaPipe FaceMesh WASM/model files at a public URL.
  * Vite does not automatically serve package assets from `node_modules`, so the
  * app vendors those files under `public/mediapipe/face_mesh` and points the
- * tracker at that stable path. The camera constraints are also shared with the
+ * tracker at a relative static path that works both in Vite preview and from a
+ * GitHub Pages project URL. The camera constraints are also shared with the
  * setup-page preflight so “Validate Camera” checks the same stream shape that
  * WebGazer will request during calibration. Ridge regression and Kalman
  * filtering match the Brown demo behavior while `saveDataAcrossSessions(false)`
